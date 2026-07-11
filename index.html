@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLA Foundations — Chapter 19 Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal: #3a9e8f; --teal-light: #e8f7f5; --teal-mid: #b2dfd9;
+  --sand: #f5f0e8; --sand-dark: #e8dfc8; --navy: #1d3557;
+  --text: #1a2540; --muted: #7a8599;
+  --correct: #2d9e6b; --correct-bg: #eaf7f1; --wrong: #c0392b; --wrong-bg: #fdf0ee;
+  --radius: 14px;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--text); min-height: 100vh; }
+.cover { background: linear-gradient(160deg, #1a2a4a 0%, #2d5a6b 55%, #4a7c6f 100%); color: white; padding: 4rem 2rem 3rem; text-align: center; }
+.cover-logo { font-size: 48px; margin-bottom: 1rem; }
+.cover h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 5vw, 2.8rem); font-weight: 600; line-height: 1.2; margin-bottom: 0.5rem; }
+.cover p { font-size: 1rem; opacity: 0.85; margin-bottom: 2rem; }
+.cover-meta { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+.cover-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; padding: 8px 20px; font-size: 13px; font-weight: 500; }
+.progress-wrap { background: var(--sand-dark); padding: 14px 2rem; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.07); }
+.progress-label { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.progress-bar { flex: 1; height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), #2a6b7c); border-radius: 3px; transition: width 0.5s ease; }
+.progress-count { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.section { max-width: 720px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+.section + .section { border-top: 1px solid var(--sand-dark); }
+.section-eyebrow { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); margin-bottom: 6px; }
+.section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+.section-intro { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 1.5rem; }
+.power-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--sand-dark); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: all 0.2s; background: white; }
+.power-item:hover { border-color: var(--teal-mid); }
+.power-item.yes { background: var(--correct-bg); border-color: #7ecfb3; }
+.power-item.no { background: var(--wrong-bg); border-color: #e8a89e; }
+.power-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ccc; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+.power-item.yes .power-dot { background: var(--correct); border-color: var(--correct); color: white; }
+.power-item.no .power-dot { background: var(--wrong); border-color: var(--wrong); color: white; }
+.power-text { font-size: 14px; line-height: 1.5; }
+.power-hint { font-size: 11px; margin-top: 3px; display: none; }
+.power-item.yes .power-hint { display: block; color: var(--correct); }
+.power-item.no .power-hint { display: block; color: var(--wrong); }
+.quiz-card { background: white; border: 1.5px solid var(--sand-dark); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.5rem; }
+.qnum { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+.qtext { font-size: 16px; font-weight: 500; color: var(--navy); margin-bottom: 1.25rem; line-height: 1.5; }
+.qsubtext { font-size: 13px; color: var(--muted); margin-top: -10px; margin-bottom: 1.25rem; line-height: 1.5; }
+.mc-options { display: flex; flex-direction: column; gap: 8px; }
+.mc-btn { background: var(--sand); border: 1.5px solid var(--sand-dark); border-radius: 10px; padding: 12px 16px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+.mc-btn:hover:not(.locked) { border-color: var(--teal-mid); background: var(--teal-light); }
+.mc-btn.correct { background: var(--correct-bg); border-color: #7ecfb3; color: var(--correct); font-weight: 500; }
+.mc-btn.wrong { background: var(--wrong-bg); border-color: #e8a89e; color: var(--wrong); }
+.mc-btn.reveal-correct { background: var(--correct-bg); border-color: #7ecfb3; color: var(--correct); }
+.mc-btn.locked { cursor: default; }
+.mc-icon { font-size: 16px; flex-shrink: 0; }
+.feedback { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.6; }
+.feedback.show { display: block; }
+.feedback.correct { background: var(--correct-bg); color: #1a6b47; border-left: 3px solid var(--correct); }
+.feedback.wrong { background: var(--wrong-bg); color: #8b2018; border-left: 3px solid var(--wrong); }
+.open-q textarea { width: 100%; min-height: 90px; resize: vertical; font-size: 14px; font-family: 'DM Sans', sans-serif; padding: 12px 14px; border: 1.5px solid var(--sand-dark); border-radius: 10px; background: var(--sand); color: var(--text); line-height: 1.6; transition: border-color 0.2s; }
+.open-q textarea:focus { outline: none; border-color: var(--teal); }
+.prompt-hint { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
+.scenario-card { background: var(--sand); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+.scenario-card strong { color: var(--navy); display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.scenario-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.sc-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--sand-dark); background: white; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); transition: all 0.2s; }
+.sc-btn:hover:not(.locked) { border-color: var(--teal); }
+.sc-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: var(--correct); font-weight: 500; }
+.sc-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); color: var(--wrong); }
+.sc-btn.locked { cursor: default; }
+.cycle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.cycle-card { background: var(--sand); border: 1.5px solid var(--sand-dark); border-radius: 10px; padding: 12px 14px; text-align: center; }
+.cycle-card .season { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); margin-bottom: 4px; }
+.cycle-card .phase { font-size: 14px; font-weight: 500; color: var(--navy); }
+.cycle-card .desc { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.wave-divider { text-align: center; padding: 1rem 0 0.5rem; opacity: 0.25; font-size: 22px; }
+.final-card { background: linear-gradient(135deg, #1a2a4a, #2d5a6b); color: white; border-radius: var(--radius); padding: 2rem; margin-top: 1rem; }
+.final-card h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 8px; }
+.final-card p { font-size: 14px; opacity: 0.85; line-height: 1.6; margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; padding: 8px 24px; font-size: 15px; font-weight: 500; margin-bottom: 1.5rem; }
+.name-wrap { margin-top: 1.25rem; margin-bottom: 1rem; }
+.name-wrap label { display: block; font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+.name-wrap input { width: 100%; font-size: 15px; font-family: 'DM Sans', sans-serif; padding: 12px 14px; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 10px; background: rgba(255,255,255,0.12); color: white; }
+.name-wrap input::placeholder { color: rgba(255,255,255,0.5); }
+.name-wrap input:focus { outline: none; border-color: rgba(255,255,255,0.6); }
+.submit-btn { background: var(--teal); border: none; border-radius: 10px; padding: 14px 32px; font-size: 15px; font-weight: 500; color: white; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; width: 100%; }
+.submit-btn:hover:not(:disabled) { background: #2d8a7c; }
+.submit-btn:disabled { background: #555; cursor: not-allowed; }
+.submit-status { font-size: 13px; margin-top: 12px; text-align: center; min-height: 20px; }
+.submit-status.sending { color: #8effda; }
+.submit-status.sent { color: #8effda; font-weight: 500; }
+.submit-status.error { color: #ffb3b3; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-logo">⚡</div>
+  <h1>FLA Foundations<br>Chapter 19 Workbook</h1>
+  <p>Adjusting Macros · Fuel → Feedback → Adjust → Repeat</p>
+  <div class="cover-meta">
+    <span class="cover-pill">Phase III — Power</span>
+    <span class="cover-pill">Mindset: Consistency Over Time</span>
+    <span class="cover-pill">Action: Track Food Before Consuming</span>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <span class="progress-label">Progress</span>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  <span class="progress-count" id="prog-count">0 / 12</span>
+</div>
+
+<!-- PART 1: POWER CHECK-IN -->
+<div class="section">
+  <div class="section-eyebrow">Part 1 · Mindset</div>
+  <h2 class="section-title">Are you walking in power this week?</h2>
+  <p class="section-intro">Phase III. Attribute: <strong>Power</strong>. Macros adjust — your identity doesn't. Check in before moving forward.</p>
+  <div id="power-list"></div>
+</div>
+
+<div class="wave-divider">~ ~ ~</div>
+
+<!-- PART 2: MACRO FOUNDATIONS -->
+<div class="section">
+  <div class="section-eyebrow">Part 2 · Macro Foundations</div>
+  <h2 class="section-title">Macros move with you</h2>
+  <p class="section-intro">Your macros are not a permanent sentence. They're a communication tool — your body sends signals, you adjust, and you keep moving. Understanding the system is what earns you food freedom.</p>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 1 of 12</div>
+    <div class="qtext">What is the FLA approach when first setting macros — and why?</div>
+    <div class="mc-options" id="mc-1">
+      <button class="mc-btn" onclick="checkMC(1,this,false)"><span class="mc-icon">○</span>Immediately set a 500-calorie deficit based on your goal weight</button>
+      <button class="mc-btn" onclick="checkMC(1,this,true)"><span class="mc-icon">○</span>Collect first — track your normal intake without judgment to find your real baseline and TDEE, then set starting macros</button>
+      <button class="mc-btn" onclick="checkMC(1,this,false)"><span class="mc-icon">○</span>Use a macro calculator and start the diet phase straight away</button>
+      <button class="mc-btn" onclick="checkMC(1,this,false)"><span class="mc-icon">○</span>Start with the lowest possible protein and adjust upward over time</button>
+    </div>
+    <div class="feedback" id="fb-1"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 2 of 12</div>
+    <div class="qtext">What is the correct order for setting the three macros — and what is the protein target range?</div>
+    <div class="mc-options" id="mc-2">
+      <button class="mc-btn" onclick="checkMC(2,this,false)"><span class="mc-icon">○</span>Carbs first (energy), then fat (hormones), then protein (0.5–0.8g/lb)</button>
+      <button class="mc-btn" onclick="checkMC(2,this,false)"><span class="mc-icon">○</span>Fat first (25–35%), then carbs, then protein at whatever remains</button>
+      <button class="mc-btn" onclick="checkMC(2,this,true)"><span class="mc-icon">○</span>Protein first (0.8–1.2g/lb ideal bodyweight), then fat (25–35% of total), then carbs fill the rest</button>
+      <button class="mc-btn" onclick="checkMC(2,this,false)"><span class="mc-icon">○</span>Protein first (1.5–2.0g/lb), then equal split between carbs and fat</button>
+    </div>
+    <div class="feedback" id="fb-2"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 3 of 12</div>
+    <div class="qtext">What does the FLA macro cycling system look like across a year?</div>
+    <p class="qsubtext">Match the seasons to the phases in the reference below, then answer the question.</p>
+    <div class="cycle-grid">
+      <div class="cycle-card"><div class="season">🌱 Spring</div><div class="phase">Reverse</div><div class="desc">Raise metabolism</div></div>
+      <div class="cycle-card"><div class="season">☀️ Summer</div><div class="phase">Diet</div><div class="desc">Strategic deficit</div></div>
+      <div class="cycle-card"><div class="season">🍂 Fall</div><div class="phase">Maintain</div><div class="desc">Lock in the loss</div></div>
+      <div class="cycle-card"><div class="season">❄️ Winter</div><div class="phase">Recover</div><div class="desc">Rest and restore</div></div>
+    </div>
+    <div style="margin-top: 1.25rem;">
+      <div class="mc-options" id="mc-3">
+        <button class="mc-btn" onclick="checkMC(3,this,false)"><span class="mc-icon">○</span>The phases are fixed — every client follows the same seasonal schedule</button>
+        <button class="mc-btn" onclick="checkMC(3,this,true)"><span class="mc-icon">○</span>The four phases — Reverse, Diet, Maintain, Recover — repeat in cycles, with timing guided by biofeedback and progress, not the calendar</button>
+        <button class="mc-btn" onclick="checkMC(3,this,false)"><span class="mc-icon">○</span>The Diet phase is the only phase that repeats — the others are one-time transitions</button>
+        <button class="mc-btn" onclick="checkMC(3,this,false)"><span class="mc-icon">○</span>Macro cycling means changing macros weekly based on workout intensity</button>
+      </div>
+      <div class="feedback" id="fb-3"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wave-divider">~ ~ ~</div>
+
+<!-- PART 3: DIET PHASE & ADJUSTMENTS -->
+<div class="section">
+  <div class="section-eyebrow">Part 3 · The Diet Phase</div>
+  <h2 class="section-title">Strategic deficit — not starvation</h2>
+  <p class="section-intro">A deficit is a tool, not a punishment. The difference between a FLA deficit and a crash diet is precision, protein protection, and knowing when to pause.</p>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 4 of 12</div>
+    <div class="qtext">When entering a diet phase, what happens to protein — and where do the calories come from?</div>
+    <div class="mc-options" id="mc-4">
+      <button class="mc-btn" onclick="checkMC(4,this,false)"><span class="mc-icon">○</span>Protein is reduced first to lower total calories, while carbs and fat stay the same</button>
+      <button class="mc-btn" onclick="checkMC(4,this,false)"><span class="mc-icon">○</span>All three macros are reduced proportionally by the same percentage</button>
+      <button class="mc-btn" onclick="checkMC(4,this,true)"><span class="mc-icon">○</span>Protein stays the same as maintenance — the deficit of 250–500 calories comes from reducing carbs and/or fat</button>
+      <button class="mc-btn" onclick="checkMC(4,this,false)"><span class="mc-icon">○</span>Fat is removed entirely first, then protein is adjusted based on training volume</button>
+    </div>
+    <div class="feedback" id="fb-4"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 5 of 12</div>
+    <div class="qtext">What is the difference between a refeed and a full diet break — and when is each used?</div>
+    <div class="mc-options" id="mc-5">
+      <button class="mc-btn" onclick="checkMC(5,this,false)"><span class="mc-icon">○</span>They are the same thing — both mean eating at maintenance for 1–2 weeks</button>
+      <button class="mc-btn" onclick="checkMC(5,this,false)"><span class="mc-icon">○</span>A refeed raises all macros to maintenance; a diet break raises only carbs for 1–2 days</button>
+      <button class="mc-btn" onclick="checkMC(5,this,true)"><span class="mc-icon">○</span>A refeed is 1–2 days with a carb bump only; a diet break is 7+ days at full maintenance — used for hormonal reset, mental relief, or poor biofeedback</button>
+      <button class="mc-btn" onclick="checkMC(5,this,false)"><span class="mc-icon">○</span>A refeed is used after a plateau; a diet break is used only after 20+ weeks of dieting</button>
+    </div>
+    <div class="feedback" id="fb-5"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 6 of 12</div>
+    <div class="qtext">Apply the refeed calculation: maintenance is 2,000 cal, current deficit is 1,600 cal. How many extra grams of carbs are added on a refeed day — and which macros stay the same?</div>
+    <div class="mc-options" id="mc-6">
+      <button class="mc-btn" onclick="checkMC(6,this,false)"><span class="mc-icon">○</span>Add 50g carbs; protein and fat increase proportionally</button>
+      <button class="mc-btn" onclick="checkMC(6,this,false)"><span class="mc-icon">○</span>Add 200g carbs; all macros stay the same except carbs</button>
+      <button class="mc-btn" onclick="checkMC(6,this,true)"><span class="mc-icon">○</span>Add ~100g carbs (400 ÷ 4 = 100g); protein and fat stay exactly the same</button>
+      <button class="mc-btn" onclick="checkMC(6,this,false)"><span class="mc-icon">○</span>Add 100g carbs and 20g fat; protein stays the same</button>
+    </div>
+    <div class="feedback" id="fb-6"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 7 of 12</div>
+    <div class="qtext">Decide the right action for each scenario — continue the diet, take a refeed, or take a full diet break?</div>
+    <div id="sc-group-7">
+      <div class="scenario-card">
+        <strong>Scenario A</strong>8 weeks into a deficit. Weight is still dropping slowly, energy is good, sleep is solid, mood is stable.
+        <div class="scenario-options">
+          <button class="sc-btn" onclick="checkScenario('7a',this,true)">Continue deficit</button>
+          <button class="sc-btn" onclick="checkScenario('7a',this,false)">Refeed (1–2 days)</button>
+          <button class="sc-btn" onclick="checkScenario('7a',this,false)">Full diet break (7+ days)</button>
+        </div>
+        <div class="feedback" id="fb-7a"></div>
+      </div>
+      <div class="scenario-card">
+        <strong>Scenario B</strong>4 weeks in. Weight has stalled for 2 weeks, you're tired, cravings are intense, and your workouts feel awful.
+        <div class="scenario-options">
+          <button class="sc-btn" onclick="checkScenario('7b',this,false)">Continue deficit</button>
+          <button class="sc-btn" onclick="checkScenario('7b',this,false)">Refeed (1–2 days)</button>
+          <button class="sc-btn" onclick="checkScenario('7b',this,true)">Full diet break (7+ days)</button>
+        </div>
+        <div class="feedback" id="fb-7b"></div>
+      </div>
+      <div class="scenario-card">
+        <strong>Scenario C</strong>6 weeks in. Progress is good overall but you have a big social event this weekend. You want a mental reset, not a full break.
+        <div class="scenario-options">
+          <button class="sc-btn" onclick="checkScenario('7c',this,false)">Continue deficit</button>
+          <button class="sc-btn" onclick="checkScenario('7c',this,true)">Refeed (1–2 days)</button>
+          <button class="sc-btn" onclick="checkScenario('7c',this,false)">Full diet break (7+ days)</button>
+        </div>
+        <div class="feedback" id="fb-7c"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wave-divider">~ ~ ~</div>
+
+<!-- PART 4: PHASE PRINCIPLES & THE LONG GAME -->
+<div class="section">
+  <div class="section-eyebrow">Part 4 · Phase Principles & The Long Game</div>
+  <h2 class="section-title">Learn your rhythms. Earn your freedom.</h2>
+  <p class="section-intro">Adjusting macros isn't a one-time event — it's a skill you develop over time. The goal isn't to follow instructions forever. It's to build enough intuition that you can lead yourself for life.</p>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 8 of 12</div>
+    <div class="qtext">According to FLA general principles, when should you shift out of the reverse diet phase?</div>
+    <div class="mc-options" id="mc-8">
+      <button class="mc-btn" onclick="checkMC(8,this,false)"><span class="mc-icon">○</span>After exactly 4 weeks, regardless of how you feel</button>
+      <button class="mc-btn" onclick="checkMC(8,this,false)"><span class="mc-icon">○</span>As soon as you hit your maintenance calorie target</button>
+      <button class="mc-btn" onclick="checkMC(8,this,true)"><span class="mc-icon">○</span>Stay until you see weight gain OR you have perfect energy — then shift to the next phase</button>
+      <button class="mc-btn" onclick="checkMC(8,this,false)"><span class="mc-icon">○</span>When biofeedback starts to decline — that signals the reverse is complete</button>
+    </div>
+    <div class="feedback" id="fb-8"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 9 of 12</div>
+    <div class="qtext">What does FLA say macro adjustments represent — and what do they NOT represent?</div>
+    <div class="mc-options" id="mc-9">
+      <button class="mc-btn" onclick="checkMC(9,this,false)"><span class="mc-icon">○</span>They represent failure — if your macros need changing, you didn't follow the plan correctly</button>
+      <button class="mc-btn" onclick="checkMC(9,this,false)"><span class="mc-icon">○</span>They represent a new diet plan — each adjustment restarts the program</button>
+      <button class="mc-btn" onclick="checkMC(9,this,true)"><span class="mc-icon">○</span>They represent communication — your body adapts and energy needs shift, so adjustments are a natural, expected part of the process, not punishment</button>
+      <button class="mc-btn" onclick="checkMC(9,this,false)"><span class="mc-icon">○</span>They represent progress stalling — adjustments are only needed when something has gone wrong</button>
+    </div>
+    <div class="feedback" id="fb-9"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 10 of 12</div>
+    <div class="qtext">What is the FLA "long game" framework — what do you do to eventually lead yourself without a coach?</div>
+    <div class="mc-options" id="mc-10">
+      <button class="mc-btn" onclick="checkMC(10,this,false)"><span class="mc-icon">○</span>Memorize your macro numbers and repeat the same diet phase indefinitely</button>
+      <button class="mc-btn" onclick="checkMC(10,this,false)"><span class="mc-icon">○</span>Track strictly for 12 months then stop tracking entirely and eat intuitively</button>
+      <button class="mc-btn" onclick="checkMC(10,this,true)"><span class="mc-icon">○</span>Learn your rhythms, log your changes, reflect on each phase, and build intuition — earning food freedom through consistent practice over time</button>
+      <button class="mc-btn" onclick="checkMC(10,this,false)"><span class="mc-icon">○</span>Follow the same macro cycling calendar every year regardless of life circumstances</button>
+    </div>
+    <div class="feedback" id="fb-10"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="qnum">Question 11 of 12</div>
+    <div class="qtext">Which of the following correctly describes what should happen to the diet phase when weight stalls OR stress climbs?</div>
+    <div class="mc-options" id="mc-11">
+      <button class="mc-btn" onclick="checkMC(11,this,false)"><span class="mc-icon">○</span>Cut calories further to push through the plateau</button>
+      <button class="mc-btn" onclick="checkMC(11,this,false)"><span class="mc-icon">○</span>Increase cardio to compensate for the stall without touching macros</button>
+      <button class="mc-btn" onclick="checkMC(11,this,true)"><span class="mc-icon">○</span>Shift phases — a stall combined with rising stress is a signal to move to a diet break or maintenance, not to push harder</button>
+      <button class="mc-btn" onclick="checkMC(11,this,false)"><span class="mc-icon">○</span>Stay in the diet phase for at least 4 more weeks to confirm the stall before acting</button>
+    </div>
+    <div class="feedback" id="fb-11"></div>
+  </div>
+
+  <div class="quiz-card open-q">
+    <div class="qnum">Question 12 of 12</div>
+    <div class="qtext">Which phase of the FLA cycle are you currently in — and based on your biofeedback right now, is it time to stay or shift?</div>
+    <p class="qsubtext">Reverse · Diet · Maintain · Recover. Be specific about what your energy, sleep, weight trend, and mood are telling you.</p>
+    <textarea id="oa-12" placeholder="I'm currently in the __ phase. My biofeedback is showing... Based on that, I should stay / shift because..." onkeyup="trackOpen(12)"></textarea>
+    <div class="prompt-hint">This is exactly the kind of self-awareness that earns you food freedom. Your coach will review this closely.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="final-card">
+    <h3>Chapter 19 complete ⚡</h3>
+    <p>Enter your name and submit — your coach receives your macro knowledge, your phase decisions, and your current biofeedback self-assessment.</p>
+    <div class="score-badge" id="final-score">Quiz score: — / 10</div>
+    <div class="name-wrap">
+      <label>Your name</label>
+      <input type="text" id="client-name" placeholder="First and last name" />
+    </div>
+    <button class="submit-btn" id="submit-btn" onclick="submitWorkbook()">Send to my coach</button>
+    <div class="submit-status" id="submit-status"></div>
+  </div>
+</div>
+
+<script>
+var quizAnswered = {};
+var openFilled = {};
+var powerState = {};
+var TOTAL_ITEMS = 12;
+// MC scored: Q1,Q2,Q3,Q4,Q5,Q6,Q7(scenario=1),Q8,Q9,Q10,Q11 = 11
+// Open: Q12 = 1. Total = 12. Score out of 11.
+var MC_TOTAL = 11;
+
+function updateProgress() {
+  var done = Object.keys(quizAnswered).length + Object.keys(openFilled).length;
+  var pct = Math.min(100, Math.round(done / TOTAL_ITEMS * 100));
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-count').textContent = done + ' / ' + TOTAL_ITEMS;
+  var correct = 0;
+  for (var k in quizAnswered) { if (quizAnswered[k]) correct++; }
+  document.getElementById('final-score').textContent = 'Quiz score: ' + correct + ' / ' + MC_TOTAL;
+}
+
+var powerQs = [
+  { q: "Own your choices and actions", y: "Every macro choice you own is data that helps you adjust. Keep owning it.", n: "What macro decision have you been avoiding owning this week?" },
+  { q: "Align actions with your island goal", y: "Your macros are aligned with your goal — and so are you. Keep it that way.", n: "Is the phase you're in actually serving your island goal right now?" },
+  { q: "Choose the best option, not the easiest", y: "The best macro choice isn't always the comfortable one. You're making it.", n: "What's the best macro adjustment you've been putting off?" },
+  { q: "Find solutions, not excuses", y: "Every biofeedback signal is a solution waiting to be found. You're looking.", n: "What signal has your body been sending that you've been explaining away instead of acting on?" },
+  { q: "Honor your word — to yourself", y: "You're tracking and adjusting — that's honoring the commitment to your body.", n: "What tracking commitment to yourself can you recommit to this week?" },
+  { q: "When setbacks hit, refocus and move forward", y: "A stall is not a stop. You adjust and move. That's the process.", n: "What would 'adjust and move forward' look like in your next 7 days?" }
+];
+
+function renderPower() {
+  var el = document.getElementById('power-list');
+  el.innerHTML = powerQs.map(function(item, i) {
+    var s = powerState[i] || '';
+    var hint = s === 'yes' ? item.y : s === 'no' ? item.n : '';
+    return '<div class="power-item ' + s + '" onclick="cyclePower(' + i + ')">' +
+      '<div class="power-dot">' + (s === 'yes' ? '✓' : s === 'no' ? '✕' : '') + '</div>' +
+      '<div><div class="power-text">' + item.q + '</div>' +
+      '<div class="power-hint">' + hint + '</div></div></div>';
+  }).join('');
+}
+function cyclePower(i) {
+  powerState[i] = powerState[i] === 'yes' ? 'no' : powerState[i] === 'no' ? '' : 'yes';
+  renderPower();
+}
+
+var MC_FB = {
+  1:  { c: "Correct. FLA says <strong>collect, don't correct</strong> — track your normal intake first with no judgment to find your real baseline and TDEE, then set starting macros from there.", w: "FLA's starting approach: <strong>collect, don't correct</strong>. Track what you're actually eating, find your real TDEE, then set macros. Jumping straight to a deficit without a baseline is guessing." },
+  2:  { c: "Right. The macro order is: <strong>protein first (0.8–1.2g/lb ideal bodyweight) → fat (25–35% of total) → carbs fill the rest</strong>. Protein is fixed; carbs are the flexible lever.", w: "Macro order: <strong>protein first at 0.8–1.2g/lb ideal bodyweight, then fat at 25–35% of total calories, then carbs fill whatever remains</strong>. Always set protein first." },
+  3:  { c: "Exactly. The four phases — <strong>Reverse, Diet, Maintain, Recover</strong> — cycle repeatedly. The example seasons are illustrative; actual timing is driven by biofeedback and progress, not the calendar.", w: "The four phases <strong>(Reverse → Diet → Maintain → Recover)</strong> repeat in cycles. The seasonal example is a guide, not a rule — your biofeedback and progress determine the timing." },
+  4:  { c: "Correct. <strong>Protein stays the same as maintenance</strong> — it's protected. The 250–500 calorie deficit comes from reducing carbs, fat, or both.", w: "In a diet phase, <strong>protein stays unchanged from maintenance</strong>. The deficit of 250–500 calories is pulled from carbs and/or fat only — never from protein." },
+  5:  { c: "Right. A <strong>refeed = 1–2 days, carb bump only</strong> to maintenance calories. A <strong>diet break = 7+ days at full maintenance</strong> — all macros raised — used for hormonal reset, mental relief, or poor biofeedback.", w: "Key distinction: <strong>refeed = 1–2 days, carbs only raised</strong>. <strong>Diet break = 7+ days, all macros raised to maintenance</strong>. Use a refeed for a short reset; a diet break when biofeedback is clearly suffering." },
+  6:  { c: "Correct. The maths: maintenance (2,000) − deficit (1,600) = 400 extra calories ÷ 4 cal/g = <strong>100g extra carbs</strong>. Protein and fat stay exactly as they are.", w: "The refeed formula: (Maintenance − Deficit) ÷ 4 = extra carbs. (2,000 − 1,600) ÷ 4 = <strong>100g extra carbs</strong>. Protein and fat don't change — only carbs are bumped." },
+  8:  { c: "Correct. Stay in the reverse until you see <strong>weight gain OR you have perfect energy</strong> — those are the two signals that it's time to shift to the next phase.", w: "Exit the reverse phase when you see <strong>weight gain OR perfect energy</strong>. Either signal means the metabolism has responded and it's time to move forward." },
+  9:  { c: "Exactly. FLA frames macro adjustments as <strong>communication — your body adapts, energy needs shift, and adjustments are the expected, natural response</strong>. They are never punishment or failure.", w: "Macro adjustments = <strong>communication with your body, not punishment</strong>. Your body adapts constantly. Adjusting is the skill — not a sign that something went wrong." },
+  10: { c: "Right. The long game: <strong>learn your rhythms, log your changes, reflect on each phase, build intuition</strong>. The goal is to earn food freedom by understanding your body deeply enough to lead yourself.", w: "The FLA long game: <strong>learn rhythms, log changes, reflect on phases, build intuition</strong>. A year of conscious practice earns you the freedom to lead yourself for life." },
+  11: { c: "Correct. A stall combined with rising stress = <strong>shift phases</strong>. Pushing harder into a deficit when both signals are present is the fastest route to burnout and hormonal disruption.", w: "Weight stall + stress climbing = <strong>time to shift phases, not push harder</strong>. More deficit at this point worsens both the stall and the stress response. The body needs a reset." }
+};
+
+function checkMC(qid, btn, correct) {
+  var container = document.getElementById('mc-' + qid);
+  if (container.querySelector('.locked')) return;
+  var btns = container.querySelectorAll('.mc-btn');
+  btns.forEach(function(b) { b.classList.add('locked'); });
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  btn.querySelector('.mc-icon').textContent = correct ? '✓' : '✕';
+  if (!correct) {
+    btns.forEach(function(b) {
+      if (b.getAttribute('onclick').indexOf(',true)') > -1) {
+        b.classList.add('reveal-correct');
+        b.querySelector('.mc-icon').textContent = '✓';
+      }
+    });
+  }
+  var fb = document.getElementById('fb-' + qid);
+  fb.innerHTML = correct ? MC_FB[qid].c : MC_FB[qid].w;
+  fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+  quizAnswered[qid] = correct;
+  updateProgress();
+}
+
+var SC_FB = {
+  '7a': { c: "Correct. Positive progress + solid biofeedback across the board = <strong>stay in the deficit</strong>. Don't fix what isn't broken.", w: "When weight is dropping and biofeedback is strong, <strong>continue the deficit</strong>. A stall hasn't happened and no signals are warning you to stop." },
+  '7b': { c: "Right. Stalled weight + multiple negative biofeedback signals (fatigue, cravings, poor performance) = <strong>full diet break of 7+ days</strong>. A 1–2 day refeed won't be enough recovery here.", w: "Multiple negative signals alongside a plateau = <strong>full diet break (7+ days)</strong>. The body is clearly under stress and needs more than a 1–2 day refeed to recover properly." },
+  '7c': { c: "Right call. Good overall progress + a short-term social event needing a mental reset = <strong>refeed for 1–2 days</strong>. It covers the event and provides a hormonal bump without interrupting the bigger picture.", w: "Good progress + a specific short-term event = <strong>refeed (1–2 days)</strong>. You don't need a full diet break — just a planned, structured carb bump around the event." }
+};
+
+var sc7Answers = {};
+function checkScenario(scid, btn, correct) {
+  var options = btn.parentNode.querySelectorAll('.sc-btn');
+  if (options[0].classList.contains('locked')) return;
+  options.forEach(function(b) { b.classList.add('locked'); });
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    options.forEach(function(b) {
+      if (b.getAttribute('onclick').indexOf(',true)') > -1) b.classList.add('correct');
+    });
+  }
+  var fb = document.getElementById('fb-' + scid);
+  fb.innerHTML = correct ? SC_FB[scid].c : SC_FB[scid].w;
+  fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+  sc7Answers[scid] = correct;
+  if (Object.keys(sc7Answers).length === 3 && !quizAnswered[7]) {
+    quizAnswered[7] = sc7Answers['7a'] && sc7Answers['7b'] && sc7Answers['7c'];
+    updateProgress();
+  }
+}
+
+function trackOpen(qid) {
+  var val = document.getElementById('oa-' + qid).value.trim();
+  if (val.length > 10 && !openFilled[qid]) { openFilled[qid] = true; updateProgress(); }
+}
+
+function submitWorkbook() {
+  var name = document.getElementById('client-name').value.trim();
+  if (!name) {
+    document.getElementById('submit-status').className = 'submit-status error';
+    document.getElementById('submit-status').textContent = 'Please enter your name before submitting.';
+    return;
+  }
+
+  var correct = 0;
+  for (var k in quizAnswered) { if (quizAnswered[k]) correct++; }
+
+  var powerAnswers = powerQs.map(function(item, i) {
+    var s = powerState[i] || 'not answered';
+    return item.q + ': ' + (s === 'yes' ? 'YES' : s === 'no' ? 'NOT YET' : 'not answered');
+  }).join('\n');
+
+  var qLabel = function(id) {
+    return quizAnswered[id] === true ? 'correct' : quizAnswered[id] === false ? 'wrong' : 'not answered';
+  };
+
+  var quizResults =
+    'Q1 (How to set macros initially): ' + qLabel(1) + '\n' +
+    'Q2 (Macro order + protein target): ' + qLabel(2) + '\n' +
+    'Q3 (Macro cycling overview): ' + qLabel(3) + '\n' +
+    'Q4 (Diet phase — protein + deficit source): ' + qLabel(4) + '\n' +
+    'Q5 (Refeed vs diet break): ' + qLabel(5) + '\n' +
+    'Q6 (Refeed carb calculation): ' + qLabel(6) + '\n' +
+    'Q7 (Continue / refeed / break scenario): ' + (quizAnswered[7] === true ? 'all correct' : quizAnswered[7] === false ? 'some wrong' : 'not answered') + '\n' +
+    'Q8 (When to exit reverse phase): ' + qLabel(8) + '\n' +
+    'Q9 (What adjustments represent): ' + qLabel(9) + '\n' +
+    'Q10 (The long game framework): ' + qLabel(10) + '\n' +
+    'Q11 (Stall + stress = shift phases): ' + qLabel(11);
+
+  var btn = document.getElementById('submit-btn');
+  var status = document.getElementById('submit-status');
+  btn.disabled = true;
+  status.className = 'submit-status sending';
+  status.textContent = 'Sending to your coach...';
+
+  fetch('https://formspree.io/f/mredkkpj', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      client_name: name,
+      chapter: 'Chapter 19 — Adjusting Macros',
+      date: new Date().toLocaleDateString(),
+      quiz_score: correct + ' / ' + MC_TOTAL,
+      quiz_results: quizResults,
+      power_checkin: powerAnswers,
+      phase_biofeedback_reflection: document.getElementById('oa-12').value.trim() || '(not answered)'
+    })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      status.className = 'submit-status sent';
+      status.textContent = '✓ Submitted! Your coach will review your answers.';
+      btn.textContent = 'Submitted ✓';
+    } else { throw new Error(); }
+  })
+  .catch(function() {
+    btn.disabled = false;
+    status.className = 'submit-status error';
+    status.textContent = 'Something went wrong. Please try again.';
+  });
+}
+
+renderPower();
+updateProgress();
+</script>
+</body>
+</html>
